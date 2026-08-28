@@ -1,11 +1,11 @@
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
+import ApiError from '../../../shared/api.error';
 import { getGateway } from './gateways';
-import { emailQueue, pdfQueue } from '../../../shared/queue';
-import { emitToHotel, SOCKET_EVENTS } from '../../../shared/socket';
-import { notify } from '../../../shared/notify';
-import { releaseBookingLocks, datesBetween } from '../../../shared/bookingLock';
+import { emailQueue, pdfQueue } from '../../../shared/queue.manager';
+import { emitToHotel, SOCKET_EVENTS } from '../../../shared/socket.server';
+import { notify } from '../../../shared/notification.helper';
+import { releaseBookingLocks, datesBetween } from '../../../shared/booking.lock';
 import { GatewayName } from './payment.interface';
 
 const initiate = async (
@@ -96,7 +96,7 @@ const getInvoice = async (bookingId: string, userId: string) => {
   const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
   if (!booking) throw new ApiError('Booking not found', StatusCodes.NOT_FOUND);
   if (booking.userId !== userId) throw new ApiError('Forbidden', StatusCodes.FORBIDDEN);
-  const { generateInvoicePdf } = await import('../../../shared/invoicePdf');
+  const { generateInvoicePdf } = await import('../../../shared/invoice.generator');
   return generateInvoicePdf(bookingId);
 };
 

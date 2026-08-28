@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { ParsedFilters } from '../ai/ai.interface';
-import { haversineKm } from '../../../shared/geo';
+import { haversineKm } from '../../../shared/geo.util';
 
 export interface SearchParams extends Partial<ParsedFilters> {
   q?: string;

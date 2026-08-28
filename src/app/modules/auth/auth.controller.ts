@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { AuthService } from './auth.service';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
-import { setCookies, clearSetCookies } from '../../../shared/cookies';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
+import { setCookies, clearSetCookies } from '../../../shared/cookie.helper';
 
 
 

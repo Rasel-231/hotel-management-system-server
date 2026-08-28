@@ -3,9 +3,9 @@ import { StatusCodes } from 'http-status-codes';
 import { Prisma } from '@prisma/client';
 import { ReviewService } from './review.service';
 import { reviewCreateFields } from './review.constant';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
-import { pick } from '../../../shared/pick';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
+import { pick } from '../../../shared/object.util';
 
 const getReviewsByHotel = catchAsync(async (req: Request, res: Response) => {
   const result = await ReviewService.getReviewsByHotel(req.params.hotelId);

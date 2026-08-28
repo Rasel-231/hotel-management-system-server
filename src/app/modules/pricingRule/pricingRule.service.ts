@@ -1,8 +1,8 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../../../shared/prisma';
-import { buildWhere } from '../../../shared/paginationHelper';
+import prisma from '../../../shared/prisma.client';
+import { buildWhere } from '../../../shared/pagination.helper';
 import { TPricingRuleCreate, TPricingRuleUpdate } from './pricingRule.interface';
-import { datesBetween } from '../../../shared/bookingLock';
+import { datesBetween } from '../../../shared/booking.lock';
 
 const getAll = async (query: Record<string, unknown>) => {
   const { where, orderBy, skip, take, page, limit } = buildWhere({

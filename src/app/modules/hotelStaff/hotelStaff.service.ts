@@ -1,10 +1,10 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
-import { buildWhere } from '../../../shared/paginationHelper';
+import ApiError from '../../../shared/api.error';
+import { buildWhere } from '../../../shared/pagination.helper';
 import { THotelStaffCreate, THotelStaffUpdate } from './hotelStaff.interface';
-import { notify } from '../../../shared/notify';
+import { notify } from '../../../shared/notification.helper';
 
 const assertOwner = async (hotelId: string, ownerId: string) => {
   const hotel = await prisma.hotel.findUnique({ where: { id: hotelId } });

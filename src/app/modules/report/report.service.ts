@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 
 interface ReportQuery {
   hotelId?: string;

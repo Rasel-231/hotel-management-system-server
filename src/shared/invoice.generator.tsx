@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, renderToBuffer } from '@react-pdf/renderer';
-import prisma from './prisma';
+import prisma from './prisma.client';
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 11 },

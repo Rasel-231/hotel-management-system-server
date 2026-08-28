@@ -1,5 +1,5 @@
-import prisma from './prisma';
-import { emitToUser, SOCKET_EVENTS } from './socket';
+import prisma from './prisma.client';
+import { emitToUser, SOCKET_EVENTS } from './socket.server';
 
 export const notify = async (userId: string, type: string, payload: unknown) => {
   const notification = await prisma.notification.create({

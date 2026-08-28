@@ -1,7 +1,7 @@
 
 import { User } from '@prisma/client';
 import { IUserResponse } from '../app/modules/auth/auth.interface';
-import { jwtHelpers } from '../shared/jwtHelpers';
+import { jwtHelpers } from '../shared/jwt.helper';
 import config from '../config';
 
 export const generateOtp = (): string => Math.floor(100000 + Math.random() * 900000).toString();

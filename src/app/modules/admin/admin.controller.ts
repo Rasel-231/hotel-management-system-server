@@ -3,9 +3,9 @@ import { StatusCodes } from 'http-status-codes';
 import { Prisma, Role } from '@prisma/client';
 import { AdminService } from './admin.service';
 import { adminAssignRoleFields } from './admin.constant';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
-import { pick } from '../../../shared/pick';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
+import { pick } from '../../../shared/object.util';
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const result = await AdminService.getAllUsers(

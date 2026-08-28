@@ -3,7 +3,7 @@ import { connectRedis } from "./database/redis"
 import logger from "./utils/logger"
 import app from "./app"
 import config from "./config"
-import { initSocket } from "./shared/socket"
+import { initSocket } from "./shared/socket.server"
 import { startWorkers } from "./workers"
 
 let server: Server | undefined

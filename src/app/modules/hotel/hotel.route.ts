@@ -5,7 +5,7 @@ import { requireHotelOwnership } from '../../../middlewares/hotelAccess';
 import { HotelController } from './hotel.controller';
 import { HotelValidation } from './hotel.validation';
 import { HotelPolicyValidation } from '../hotelPolicy/hotelPolicy.validation';
-import { fileUploadHelper } from '../../../shared/fileUploader';
+import { fileUploadHelper } from '../../../shared/file.uploader';
 
 const router = express.Router();
 

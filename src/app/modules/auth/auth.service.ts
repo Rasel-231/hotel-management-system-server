@@ -1,12 +1,12 @@
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import config from '../../../config';
 
-import { sendEmailHelper } from '../../../shared/sendEmail';
-import { jwtHelpers, DecodedToken } from '../../../shared/jwtHelpers';
+import { sendEmailHelper } from '../../../shared/email.helper';
+import { jwtHelpers, DecodedToken } from '../../../shared/jwt.helper';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
+import ApiError from '../../../shared/api.error';
 import {
   IAuthResult,
   ILoginPayload,

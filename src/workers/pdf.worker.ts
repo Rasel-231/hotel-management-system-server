@@ -1,9 +1,9 @@
 import { Worker } from 'bullmq';
 import { redisClient } from '../database/redis';
-import { pdfQueue, PdfJob } from '../shared/queue';
-import { generateInvoicePdf } from '../shared/invoicePdf';
-import { sendEmailHelper } from '../shared/sendEmail';
-import prisma from '../shared/prisma';
+import { pdfQueue, PdfJob } from '../shared/queue.manager';
+import { generateInvoicePdf } from '../shared/invoice.generator';
+import { sendEmailHelper } from '../shared/email.helper';
+import prisma from '../shared/prisma.client';
 import config from '../config';
 
 new Worker<PdfJob>('pdf-invoice', async (job) => {

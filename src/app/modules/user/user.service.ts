@@ -1,14 +1,14 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import bcrypt from 'bcrypt';
 import config from '../../../config';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
-import { buildWhere } from '../../../shared/paginationHelper';
+import ApiError from '../../../shared/api.error';
+import { buildWhere } from '../../../shared/pagination.helper';
 import { IUserCreateInput, IUserUpdateInput, IUserAdminUpdateInput } from './user.interface';
 import { generateOtp, generateTokens, toUserResponse } from '../../../utils/generateToken';
 import { redisClient } from '../../../database/redis';
-import { sendEmailHelper } from '../../../shared/sendEmail';
+import { sendEmailHelper } from '../../../shared/email.helper';
 import { IAuthResult } from '../auth/auth.interface';
 
 const userSelect = {

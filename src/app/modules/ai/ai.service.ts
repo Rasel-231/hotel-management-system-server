@@ -1,6 +1,6 @@
 import config from '../../../config';
-import { aiHelper } from '../../../shared/aiHelper';
-import prisma from '../../../shared/prisma';
+import { aiHelper } from '../../../shared/ai.helper';
+import prisma from '../../../shared/prisma.client';
 import { z } from 'zod';
 import { ParsedFilters } from './ai.interface';
 

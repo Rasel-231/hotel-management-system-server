@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import config from '../config';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../shared/ApiError';
-import { jwtHelpers, DecodedToken } from '../shared/jwtHelpers';
+import ApiError from '../shared/api.error';
+import { jwtHelpers, DecodedToken } from '../shared/jwt.helper';
 
 declare global {
   namespace Express {

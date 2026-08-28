@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { emailSchema, nameSchema, phoneSchema, strongPasswordSchema } from '../../../shared/validationRules';
+import { emailSchema, nameSchema, phoneSchema, strongPasswordSchema } from '../../../shared/validation.rule';
 
 const updateProfile = z.object({
   body: z.object({

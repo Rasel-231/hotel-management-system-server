@@ -1,6 +1,6 @@
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
+import ApiError from '../../../shared/api.error';
 import { Prisma, Hotel } from '@prisma/client';
 import logger from '../../../utils/logger';
 

@@ -1,4 +1,4 @@
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { Prisma } from '@prisma/client';
 
 const list = async (userId: string, query: Record<string, unknown>) => {

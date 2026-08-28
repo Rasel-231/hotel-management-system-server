@@ -1,6 +1,6 @@
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
+import ApiError from '../../../shared/api.error';
 import { Prisma, Role, User } from '@prisma/client';
 
 const getAllUsers = async (query: {

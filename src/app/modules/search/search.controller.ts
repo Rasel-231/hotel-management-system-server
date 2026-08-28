@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { searchHotels } from './search.service';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
 import { validateRequest } from '../../../middlewares/validateRequest';
 import { SearchValidation } from './search.validation';
 

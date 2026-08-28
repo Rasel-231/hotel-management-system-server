@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { PaymentService } from './payment.service';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
 
 const initiate = catchAsync(async (req: Request, res: Response) => {
   const result = await PaymentService.initiate(

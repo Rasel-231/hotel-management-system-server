@@ -3,9 +3,9 @@ import { StatusCodes } from 'http-status-codes';
 import { Prisma } from '@prisma/client';
 import { RoomService } from './room.service';
 import { roomCreateFields, roomUpdateFields } from './room.constant';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
-import { pick } from '../../../shared/pick';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
+import { pick } from '../../../shared/object.util';
 
 const getRoomsByHotel = catchAsync(async (req: Request, res: Response) => {
   const result = await RoomService.getRoomsByHotel(req.params.hotelId);

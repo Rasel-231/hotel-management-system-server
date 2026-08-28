@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
-import { JsonWebTokenError, TokenExpiredError } from '../shared/jwtHelpers';
+import { JsonWebTokenError, TokenExpiredError } from '../shared/jwt.helper';
 import { MulterError } from 'multer';
-import ApiError from '../shared/ApiError';
+import ApiError from '../shared/api.error';
 
 type ErrorSource = { path: string | number; message: string }[];
 

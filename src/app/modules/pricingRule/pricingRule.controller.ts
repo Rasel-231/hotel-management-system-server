@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { PricingRuleService } from './pricingRule.service';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
 
 const getAll = catchAsync(async (req: Request, res: Response) => {
   const result = await PricingRuleService.getAll(req.query as Record<string, unknown>);

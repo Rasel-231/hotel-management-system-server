@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { Prisma } from '@prisma/client';
-import ApiError from './ApiError';
+import ApiError from './api.error';
 
 export const handlePrismaError = (error: unknown, message?: string): never => {
   if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

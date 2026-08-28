@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import prisma from '../shared/prisma';
-import ApiError from '../shared/ApiError';
+import prisma from '../shared/prisma.client';
+import ApiError from '../shared/api.error';
 import { StatusCodes } from 'http-status-codes';
 
 declare global {

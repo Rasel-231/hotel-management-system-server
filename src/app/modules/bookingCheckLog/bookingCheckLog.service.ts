@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../../../shared/prisma';
-import { buildWhere } from '../../../shared/paginationHelper';
+import prisma from '../../../shared/prisma.client';
+import { buildWhere } from '../../../shared/pagination.helper';
 import { TBookingCheckLogCreate, TBookingCheckLogUpdate } from './bookingCheckLog.interface';
 
 const getAll = async (query: Record<string, unknown>) => {

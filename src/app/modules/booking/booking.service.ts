@@ -1,9 +1,9 @@
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
+import ApiError from '../../../shared/api.error';
 import { Prisma, Booking } from '@prisma/client';
-import { acquireBookingLocks, releaseBookingLocks, datesBetween } from '../../../shared/bookingLock';
-import { refundQueue } from '../../../shared/queue';
+import { acquireBookingLocks, releaseBookingLocks, datesBetween } from '../../../shared/booking.lock';
+import { refundQueue } from '../../../shared/queue.manager';
 import { PricingRuleService } from '../pricingRule/pricingRule.service';
 
 const createBooking = async (

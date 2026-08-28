@@ -3,9 +3,9 @@ import { StatusCodes } from 'http-status-codes';
 import { Prisma } from '@prisma/client';
 import { BookingService } from './booking.service';
 import { bookingCreateFields } from './booking.constant';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
-import { pick } from '../../../shared/pick';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
+import { pick } from '../../../shared/object.util';
 
 const createBooking = catchAsync(async (req: Request, res: Response) => {
   const data = pick(req.body as Record<string, unknown>, bookingCreateFields);

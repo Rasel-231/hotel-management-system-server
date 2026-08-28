@@ -1,7 +1,7 @@
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
-import { handlePrismaError } from '../../../shared/prismaError';
+import ApiError from '../../../shared/api.error';
+import { handlePrismaError } from '../../../shared/prisma.error';
 import { Prisma, Review } from '@prisma/client';
 
 const getReviewsByHotel = async (hotelId: string) => {

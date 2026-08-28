@@ -1,8 +1,8 @@
-import prisma from '../../../shared/prisma';
+import prisma from '../../../shared/prisma.client';
 import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../shared/ApiError';
+import ApiError from '../../../shared/api.error';
 import { Prisma, Room } from '@prisma/client';
-import { datesBetween } from '../../../shared/bookingLock';
+import { datesBetween } from '../../../shared/booking.lock';
 
 const getRoomsByHotel = async (hotelId: string): Promise<Room[]> => {
   const hotel = await prisma.hotel.findUnique({ where: { id: hotelId } });

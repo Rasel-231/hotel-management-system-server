@@ -3,8 +3,8 @@ import { StatusCodes } from 'http-status-codes';
 import { Prisma } from '@prisma/client';
 import { HotelService } from './hotel.service';
 import { HotelPolicyService } from '../hotelPolicy/hotelPolicy.service';
-import { catchAsync } from '../../../shared/catchAsync';
-import { sendResponse } from '../../../shared/sendResponse';
+import { catchAsync } from '../../../shared/async.handler';
+import { sendResponse } from '../../../shared/response.helper';
 
 const getAllHotels = catchAsync(async (req: Request, res: Response) => {
   const queryData = req.query as Record<string, unknown>;
