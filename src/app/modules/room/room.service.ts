@@ -2,6 +2,7 @@ import prisma from '../../../shared/prisma';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../../shared/ApiError';
 import { Prisma, Room } from '@prisma/client';
+import { datesBetween } from '../../../shared/bookingLock';
 
 const getRoomsByHotel = async (hotelId: string): Promise<Room[]> => {
   const hotel = await prisma.hotel.findUnique({ where: { id: hotelId } });
@@ -66,9 +67,62 @@ const updateRoom = async (
   return prisma.room.update({ where: { id }, data: payload });
 };
 
+const assertRoomAccess = async (roomId: string, userId: string): Promise<Room> => {
+  const room = await prisma.room.findUnique({ where: { id: roomId }, include: { hotel: true } });
+  if (!room) throw new ApiError(`Room '${roomId}' not found.`, StatusCodes.NOT_FOUND);
+  const isOwner = room.hotel.ownerId === userId;
+  const isStaff = !!(await prisma.hotelStaff.findUnique({
+    where: { hotelId_userId: { hotelId: room.hotelId, userId } },
+  }));
+  if (!isOwner && !isStaff) {
+    throw new ApiError('Forbidden: no access to this room', StatusCodes.FORBIDDEN);
+  }
+  return room;
+};
+
+const blockDates = async (
+  roomId: string,
+  userId: string,
+  payload: { startDate: string; endDate: string }
+) => {
+  const room = await assertRoomAccess(roomId, userId);
+  const dates = datesBetween(new Date(payload.startDate), new Date(payload.endDate));
+  await prisma.$transaction(
+    dates.map((d) =>
+      prisma.roomAvailability.upsert({
+        where: { roomId_date: { roomId, date: new Date(d) } },
+        create: { roomId, date: new Date(d), isBooked: true },
+        update: { isBooked: true },
+      })
+    )
+  );
+  return { blocked: dates.length, hotelId: room.hotelId };
+};
+
+const unblockDates = async (
+  roomId: string,
+  userId: string,
+  payload: { startDate: string; endDate: string }
+) => {
+  await assertRoomAccess(roomId, userId);
+  const dates = datesBetween(new Date(payload.startDate), new Date(payload.endDate));
+  await prisma.$transaction(
+    dates.map((d) =>
+      prisma.roomAvailability.upsert({
+        where: { roomId_date: { roomId, date: new Date(d) } },
+        create: { roomId, date: new Date(d), isBooked: false },
+        update: { isBooked: false },
+      })
+    )
+  );
+  return { unblocked: dates.length };
+};
+
 export const RoomService = {
   getRoomsByHotel,
   getRoomAvailability,
   createRoom,
   updateRoom,
+  blockDates,
+  unblockDates,
 };

@@ -33,4 +33,17 @@ const update = z.object({
   }),
 });
 
-export const HotelStaffValidation = { getAll, create, update };
+const invite = z.object({
+  body: z
+    .object({
+      email: z.string().email().optional(),
+      userId: z.string().optional(),
+      subRole: z.enum(['MANAGER', 'FRONT_DESK', 'HOUSEKEEPING']),
+      permissions: z.array(z.string()).optional(),
+    })
+    .refine((d) => d.email || d.userId, {
+      message: 'Either email or userId is required',
+    }),
+});
+
+export const HotelStaffValidation = { getAll, create, update, invite };

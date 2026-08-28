@@ -37,4 +37,14 @@ const update = z.object({
   }),
 });
 
-export const PricingRuleValidation = { getAll, create, update };
+const createScoped = z.object({
+  body: z.object({
+    roomTypeId: z.string({ required_error: 'Room type ID is required' }),
+    type: z.enum(['SEASONAL', 'WEEKEND', 'LENGTH_OF_STAY', 'EARLY_BIRD']),
+    startDate: z.string({ required_error: 'Start date is required' }),
+    endDate: z.string({ required_error: 'End date is required' }),
+    modifier: z.number({ required_error: 'Modifier is required' }),
+  }),
+});
+
+export const PricingRuleValidation = { getAll, create, update, createScoped };

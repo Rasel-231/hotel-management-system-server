@@ -56,9 +56,21 @@ const updateRoom = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const blockDates = catchAsync(async (req: Request, res: Response) => {
+  const result = await RoomService.blockDates(req.params.id, req.user!.userId, req.body);
+  sendResponse(res, { statusCode: StatusCodes.OK, success: true, message: 'Dates blocked', data: result });
+});
+
+const unblockDates = catchAsync(async (req: Request, res: Response) => {
+  const result = await RoomService.unblockDates(req.params.id, req.user!.userId, req.body);
+  sendResponse(res, { statusCode: StatusCodes.OK, success: true, message: 'Dates unblocked', data: result });
+});
+
 export const RoomController = {
   getRoomsByHotel,
   getRoomAvailability,
   createRoom,
   updateRoom,
+  blockDates,
+  unblockDates,
 };

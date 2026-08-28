@@ -55,4 +55,24 @@ const remove = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const PricingRuleController = { getAll, getById, create, update, remove };
+const createForHotel = catchAsync(async (req: Request, res: Response) => {
+  const result = await PricingRuleService.create({ ...req.body, hotelId: req.params.hotelId });
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: 'Pricing rule created successfully',
+    data: result,
+  });
+});
+
+const listForHotel = catchAsync(async (req: Request, res: Response) => {
+  const result = await PricingRuleService.listByHotel(req.params.hotelId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Pricing rules retrieved successfully',
+    data: result,
+  });
+});
+
+export const PricingRuleController = { getAll, getById, create, update, remove, createForHotel, listForHotel };

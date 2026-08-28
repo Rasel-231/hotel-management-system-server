@@ -5,6 +5,7 @@ model HotelPolicy {
   checkInTime      String?
   checkOutTime     String?
   cancellationPolicy String?
+  freeCancellationHours Int?
   petPolicy        String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

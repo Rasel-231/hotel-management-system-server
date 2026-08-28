@@ -10,6 +10,12 @@ import { PricingRuleRoutes } from '../modules/pricingRule/pricingRule.route';
 import { HotelStaffRoutes } from '../modules/hotelStaff/hotelStaff.route';
 import { RoomHousekeepingRoutes } from '../modules/roomHousekeeping/roomHousekeeping.route';
 import { BookingCheckLogRoutes } from '../modules/bookingCheckLog/bookingCheckLog.route';
+import { UserRoutes } from '../modules/user/user.route';
+import { PaymentRoutes } from '../modules/payment/payment.route';
+import { NotificationRoutes } from '../modules/notification/notification.route';
+import { AIRoutes } from '../modules/ai/ai.route';
+import { SearchRoutes } from '../modules/search/search.route';
+import { ReportRoutes } from '../modules/report/report.route';
 
 const router = Router();
 
@@ -25,6 +31,12 @@ const moduleRoutes = [
   { path: '/hotel-staff', route: HotelStaffRoutes },
   { path: '/room-housekeeping', route: RoomHousekeepingRoutes },
   { path: '/booking-check-logs', route: BookingCheckLogRoutes },
+  { path: '/users', route: UserRoutes },
+  { path: '/payments', route: PaymentRoutes },
+  { path: '/notifications', route: NotificationRoutes },
+  { path: '/ai', route: AIRoutes },
+  { path: '/search', route: SearchRoutes },
+  { path: '/reports', route: ReportRoutes },
 ];
 
 moduleRoutes.forEach(({ path, route }) => router.use(path, route));

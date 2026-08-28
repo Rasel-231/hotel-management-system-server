@@ -7,6 +7,10 @@ model Booking {
   checkIn   DateTime
   checkOut  DateTime
   status    String    @default("PENDING")
+  source    String?   @default("ONLINE")
+  guests    Int?
+  noShow    Boolean   @default(false)
+  cancelledAt DateTime?
   totalPrice Float
   payment   Payment?
   review    Review?

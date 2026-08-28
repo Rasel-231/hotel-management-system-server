@@ -75,6 +75,30 @@ const checkInBooking = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const checkOutBooking = catchAsync(async (req: Request, res: Response) => {
+  const result = await BookingService.checkOutBooking(req.params.id, req.user!.userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Booking checked out successfully',
+    data: result,
+  });
+});
+
+const walkInCreate = catchAsync(async (req: Request, res: Response) => {
+  const result = await BookingService.walkInCreate({
+    ...req.body,
+    staffId: req.staffId ?? req.user!.userId,
+    userId: req.user!.userId,
+  });
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: 'Walk-in booking created successfully',
+    data: result,
+  });
+});
+
 export const BookingController = {
   createBooking,
   getMyBookings,
@@ -82,4 +106,6 @@ export const BookingController = {
   cancelBooking,
   getOwnerBookings,
   checkInBooking,
+  checkOutBooking,
+  walkInCreate,
 };

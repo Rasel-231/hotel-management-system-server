@@ -48,4 +48,12 @@ const remove = async (id: string) => {
   return prisma.hotelPolicy.delete({ where: { id } });
 };
 
-export const HotelPolicyService = { getAll, getById, create, update, remove };
+const upsertByHotel = async (hotelId: string, payload: Prisma.HotelPolicyUpdateInput) => {
+  const existing = await prisma.hotelPolicy.findUnique({ where: { hotelId } });
+  if (existing) {
+    return prisma.hotelPolicy.update({ where: { id: existing.id }, data: payload });
+  }
+  return prisma.hotelPolicy.create({ data: { hotelId, ...(payload as Record<string, unknown>) } as Prisma.HotelPolicyUncheckedCreateInput });
+};
+
+export const HotelPolicyService = { getAll, getById, create, update, remove, upsertByHotel };

@@ -1,12 +1,12 @@
 import { z } from 'zod';
+import { emailSchema, nameSchema, phoneSchema, strongPasswordSchema } from '../../../shared/validationRules';
 
 const register = z.object({
   body: z.object({
-    name: z.string({ required_error: 'Name is required' }),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    phone: z.string().optional(),
-    role: z.enum(['SUPER_ADMIN', 'ADMIN', 'OWNER', 'USER', 'GUEST']).optional(),
+    name: nameSchema,
+    email: emailSchema,
+    password: strongPasswordSchema,
+    phone: phoneSchema,
   }),
 });
 
@@ -37,7 +37,7 @@ const forgotPassword = z.object({
 const resetPassword = z.object({
   body: z.object({
     token: z.string({ required_error: 'Reset token is required' }),
-    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    newPassword: strongPasswordSchema,
   }),
 });
 

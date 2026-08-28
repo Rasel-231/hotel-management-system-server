@@ -1,0 +1,13 @@
+model HotelImage {
+  id        String   @id @default(uuid())
+  hotelId   String
+  hotel     Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String
+  isCover   Boolean  @default(false)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([hotelId])
+  @@map("hotel_images")
+}

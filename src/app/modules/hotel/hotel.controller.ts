@@ -2,19 +2,19 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Prisma } from '@prisma/client';
 import { HotelService } from './hotel.service';
-import { hotelCreateFields, hotelUpdateFields } from './hotel.constant';
+import { HotelPolicyService } from '../hotelPolicy/hotelPolicy.service';
 import { catchAsync } from '../../../shared/catchAsync';
 import { sendResponse } from '../../../shared/sendResponse';
-import { pick } from '../../../shared/pick';
 
 const getAllHotels = catchAsync(async (req: Request, res: Response) => {
-  const queryData = req.query as {
-    searchTerm?: string;
-    location?: string;
-    page?: string | number;
-    limit?: string | number;
-  }
-  const result = await HotelService.getAllHotels(queryData);
+  const queryData = req.query as Record<string, unknown>;
+  const result = await HotelService.getAllHotels({
+    searchTerm: queryData.searchTerm as string,
+    location: queryData.location as string,
+    ownerId: req.user?.userId,
+    page: queryData.page as string,
+    limit: queryData.limit as string,
+  });
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
@@ -35,11 +35,10 @@ const getHotelBySlug = catchAsync(async (req: Request, res: Response) => {
 });
 
 const createHotel = catchAsync(async (req: Request, res: Response) => {
-  const data = pick(req.body as Record<string, unknown>, hotelCreateFields);
-  const result = await HotelService.createHotel({
-    ...data,
-    ownerId: req.user!.userId,
-  } as Prisma.HotelUncheckedCreateInput);
+  const result = await HotelService.createHotel(
+    req.body as Prisma.HotelUncheckedCreateInput,
+    req.user!.userId
+  );
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,
     success: true,
@@ -49,11 +48,7 @@ const createHotel = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateHotel = catchAsync(async (req: Request, res: Response) => {
-  const data = pick(req.body as Record<string, unknown>, hotelUpdateFields);
-  const result = await HotelService.updateHotel(
-    req.params.id,
-    data as Prisma.HotelUncheckedUpdateInput
-  );
+  const result = await HotelService.updateHotel(req.params.id, req.user!.userId, req.body);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
@@ -63,7 +58,7 @@ const updateHotel = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteHotel = catchAsync(async (req: Request, res: Response) => {
-  const result = await HotelService.deleteHotel(req.params.id);
+  const result = await HotelService.deleteHotel(req.params.id, req.user!.userId);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
@@ -82,6 +77,51 @@ const approveHotel = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const addGalleryImages = catchAsync(async (req: Request, res: Response) => {
+  const files = req.files as Express.Multer.File[];
+  const added = [];
+  for (const file of files ?? []) {
+    const f = file as unknown as { secure_url?: string; path?: string; public_id?: string };
+    added.push(
+      await HotelService.addImage(req.params.id, req.user!.userId, {
+        url: f.secure_url ?? f.path ?? '',
+        publicId: f.public_id ?? '',
+      })
+    );
+  }
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: 'Gallery images added',
+    data: added,
+  });
+});
+
+const reorderGallery = catchAsync(async (req: Request, res: Response) => {
+  const result = await HotelService.reorderImages(req.params.id, req.user!.userId, req.body.orderedIds);
+  sendResponse(res, { statusCode: StatusCodes.OK, success: true, message: 'Gallery reordered', data: result });
+});
+
+const setCoverImage = catchAsync(async (req: Request, res: Response) => {
+  const result = await HotelService.setCover(req.params.id, req.user!.userId, req.params.imageId);
+  sendResponse(res, { statusCode: StatusCodes.OK, success: true, message: 'Cover image set', data: result });
+});
+
+const deleteGalleryImage = catchAsync(async (req: Request, res: Response) => {
+  const result = await HotelService.deleteImage(req.params.id, req.user!.userId, req.params.imageId);
+  sendResponse(res, { statusCode: StatusCodes.OK, success: true, message: 'Gallery image removed', data: result });
+});
+
+const dashboard = catchAsync(async (req: Request, res: Response) => {
+  const result = await HotelService.dashboard(req.params.id, req.user!.userId);
+  sendResponse(res, { statusCode: StatusCodes.OK, success: true, message: 'Dashboard data', data: result });
+});
+
+const updatePolicies = catchAsync(async (req: Request, res: Response) => {
+  const result = await HotelPolicyService.upsertByHotel(req.params.id, req.body);
+  sendResponse(res, { statusCode: StatusCodes.OK, success: true, message: 'Policies updated', data: result });
+});
+
 export const HotelController = {
   getAllHotels,
   getHotelBySlug,
@@ -89,4 +129,10 @@ export const HotelController = {
   updateHotel,
   deleteHotel,
   approveHotel,
+  addGalleryImages,
+  reorderGallery,
+  setCoverImage,
+  deleteGalleryImage,
+  dashboard,
+  updatePolicies,
 };

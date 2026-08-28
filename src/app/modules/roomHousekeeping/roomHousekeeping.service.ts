@@ -4,6 +4,33 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../../shared/ApiError';
 import { buildWhere } from '../../../shared/paginationHelper';
 import { TRoomHousekeepingCreate, TRoomHousekeepingUpdate } from './roomHousekeeping.interface';
+import { HousekeepingStatus } from '@prisma/client';
+
+const assertRoomAccess = async (roomId: string, userId: string) => {
+  const room = await prisma.room.findUnique({ where: { id: roomId }, include: { hotel: true } });
+  if (!room) throw new ApiError(`Room '${roomId}' not found.`, StatusCodes.NOT_FOUND);
+  const isOwner = room.hotel.ownerId === userId;
+  const isStaff = !!(await prisma.hotelStaff.findUnique({
+    where: { hotelId_userId: { hotelId: room.hotelId, userId } },
+  }));
+  if (!isOwner && !isStaff) {
+    throw new ApiError('Forbidden: no access to this room', StatusCodes.FORBIDDEN);
+  }
+};
+
+const setStatus = async (
+  roomId: string,
+  userId: string,
+  status: HousekeepingStatus,
+  assignedStaffId?: string
+) => {
+  await assertRoomAccess(roomId, userId);
+  return prisma.roomHousekeeping.upsert({
+    where: { roomId },
+    create: { roomId, status, assignedStaffId },
+    update: { status, assignedStaffId },
+  });
+};
 
 const getAll = async (query: Record<string, unknown>) => {
   const { where, orderBy, skip, take, page, limit } = buildWhere({
@@ -48,4 +75,4 @@ const remove = async (id: string) => {
   return prisma.roomHousekeeping.delete({ where: { id } });
 };
 
-export const RoomHousekeepingService = { getAll, getById, create, update, remove };
+export const RoomHousekeepingService = { getAll, getById, create, update, remove, setStatus };

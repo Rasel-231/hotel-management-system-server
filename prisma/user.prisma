@@ -5,6 +5,7 @@ model User {
   passwordHash   String
   role           Role           @default(USER)
   phone          String?
+  address        String?
   isVerified     Boolean        @default(false)
   tokenVersion   Int            @default(0)
   hotels         Hotel[]

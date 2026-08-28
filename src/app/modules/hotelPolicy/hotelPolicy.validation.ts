@@ -33,4 +33,16 @@ const update = z.object({
   }),
 });
 
-export const HotelPolicyValidation = { getAll, create, update };
+const updateByHotel = z.object({
+  body: z.object({
+    checkInTime: z.string().optional(),
+    checkOutTime: z.string().optional(),
+    cancellationPolicy: z.string().optional(),
+    freeCancellationHours: z.number().int().min(0).max(8760).optional(),
+    petPolicy: z.string().optional(),
+    smokingPolicy: z.string().optional(),
+    childPolicy: z.string().optional(),
+  }),
+});
+
+export const HotelPolicyValidation = { getAll, create, update, updateByHotel };

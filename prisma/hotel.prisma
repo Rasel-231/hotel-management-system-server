@@ -8,12 +8,15 @@ model Hotel {
   location    String?
   latitude    Float?
   longitude   Float?
-  status      String   @default("ACTIVE")
+  starRating  Int?
+  amenities   String[]
+  status      HotelStatus @default(DRAFT)
   rooms       Room[]
   reviews     Review[]
   policies    HotelPolicy[]
   pricingRules PricingRule[]
   staff       HotelStaff[]
+  images      HotelImage[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

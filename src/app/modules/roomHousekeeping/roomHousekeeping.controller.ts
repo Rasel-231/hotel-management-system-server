@@ -55,4 +55,19 @@ const remove = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const RoomHousekeepingController = { getAll, getById, create, update, remove };
+const setStatus = catchAsync(async (req: Request, res: Response) => {
+  const result = await RoomHousekeepingService.setStatus(
+    req.params.id,
+    req.user!.userId,
+    req.body.status,
+    req.body.assignedStaffId
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Housekeeping status updated',
+    data: result,
+  });
+});
+
+export const RoomHousekeepingController = { getAll, getById, create, update, remove, setStatus };

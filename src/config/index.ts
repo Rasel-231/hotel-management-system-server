@@ -30,6 +30,11 @@ type Config = {
     api_secret: string | undefined;
   };
   ai_api_key: string | undefined;
+  stripe: {
+    secret_key: string;
+    publishable_key: string;
+    webhook_secret: string;
+  };
   sslcommerz: {
     store_id: string | undefined;
     store_password: string | undefined;
@@ -38,6 +43,10 @@ type Config = {
   email: {
     app_password: string | undefined;
     support_email: string | undefined;
+  };
+  maps: {
+    provider: string;
+    api_key: string;
   };
   redis_url: string;
 };
@@ -60,6 +69,11 @@ const config: Config = {
     api_secret: process.env.API_SECRET,
   },
   ai_api_key: process.env.AI_API_KEY,
+  stripe: {
+    secret_key: getEnv('STRIPE_SECRET_KEY', ''),
+    publishable_key: getEnv('STRIPE_PUBLISHABLE_KEY', ''),
+    webhook_secret: getEnv('STRIPE_WEBHOOK_SECRET', ''),
+  },
   sslcommerz: {
     store_id: process.env.Store_ID,
     store_password: process.env.Store_Password,
@@ -68,6 +82,10 @@ const config: Config = {
   email: {
     app_password: process.env.APP_PASSWORD,
     support_email: process.env.SUPPORT_EMAIL,
+  },
+  maps: {
+    provider: getEnv('MAPS_PROVIDER', 'mapbox'),
+    api_key: getEnv('MAPS_API_KEY', ''),
   },
   redis_url: getEnv('REDIS_URL', 'redis://localhost:6379'),
 };

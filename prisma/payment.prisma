@@ -5,6 +5,7 @@ model Payment {
   gateway       String
   status        String   @default("INITIATED")
   transactionId String   @unique
+  currency      String   @default("BDT")
   amount        Float
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

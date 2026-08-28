@@ -4,7 +4,11 @@ model Room {
   hotel        Hotel              @relation(fields: [hotelId], references: [id])
   type         String
   price        Float
+  basePrice    Float?
   capacity     Int
+  bedConfig    String?
+  quantity     Int       @default(1)
+  isActive     Boolean   @default(true)
   amenities    String[]
   images       String[]
   availabilities RoomAvailability[]

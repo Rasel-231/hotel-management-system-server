@@ -13,7 +13,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     return {
-      folder: 'ecommerce_assets',
+      folder: 'hotel_management',
       allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
       transformation: [{ width: 800, height: 800, crop: 'limit' }],
     };

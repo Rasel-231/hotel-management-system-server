@@ -2,81 +2,26 @@ import prisma from '../../../shared/prisma';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import config from '../../../config';
-import { RedisService } from '../../../shared/redis';
+
 import { sendEmailHelper } from '../../../shared/sendEmail';
 import { jwtHelpers, DecodedToken } from '../../../shared/jwtHelpers';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../../shared/ApiError';
-import { User } from '@prisma/client';
 import {
   IAuthResult,
   ILoginPayload,
   IRegisterPayload,
   IResetPasswordPayload,
-  IUserResponse,
   IVerifyOtpPayload,
   IForgotPasswordPayload,
   ILogoutResponse,
 } from './auth.interface';
 
-const generateOtp = (): string => Math.floor(100000 + Math.random() * 900000).toString();
+import { UserService } from '../user/user.service';
+import { generateOtp, generateTokens, toUserResponse } from '../../../utils/generateToken';
+import { redisClient } from '../../../database/redis';
 
-const toUserResponse = (user: User): IUserResponse => ({
-  id: user.id,
-  name: user.name,
-  email: user.email,
-  role: user.role,
-  phone: user.phone,
-  isVerified: user.isVerified,
-});
 
-const generateTokens = async (payload: {
-  userId: string;
-  role: string;
-  tokenVersion: number;
-}): Promise<{ accessToken: string; refreshToken: string }> => {
-  const accessToken = jwtHelpers.createToken(
-    { userId: payload.userId, role: payload.role, tokenVersion: payload.tokenVersion },
-    config.jwt.secret,
-    config.jwt.expires_in
-  );
-  const refreshToken = jwtHelpers.createToken(
-    { userId: payload.userId, role: payload.role, tokenVersion: payload.tokenVersion },
-    config.jwt.secret,
-    config.jwt.refresh_expires_in
-  );
-
-  return { accessToken, refreshToken };
-};
-
-const register = async (payload: IRegisterPayload): Promise<IAuthResult> => {
-  const existing = await prisma.user.findUnique({ where: { email: payload.email } });
-  if (existing) {
-    throw new ApiError('Email is already registered', StatusCodes.CONFLICT);
-  }
-
-  const passwordHash = await bcrypt.hash(payload.password, config.salt_rounds);
-  const user = await prisma.user.create({
-    data: {
-      name: payload.name,
-      email: payload.email,
-      passwordHash,
-      phone: payload.phone,
-      role: payload.role ?? 'USER',
-    },
-  });
-
-  const otp = generateOtp();
-  await RedisService.client.set(`otp:${user.email}`, otp, 'EX', 5 * 60);
-  await sendEmailHelper.sendEmail(
-    user.email,
-    'Verify your account',
-    `<p>Your verification OTP is <b>${otp}</b>. It expires in 5 minutes.</p>`
-  );
-
-  const tokens = await generateTokens({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion });
-  return { ...tokens, user: toUserResponse(user) };
-};
 
 const login = async (payload: ILoginPayload): Promise<IAuthResult> => {
   const user = await prisma.user.findUnique({ where: { email: payload.email } });
@@ -113,12 +58,12 @@ const refreshToken = async (token: string): Promise<{ accessToken: string; refre
 };
 
 const verifyOtp = async (payload: IVerifyOtpPayload): Promise<{ verified: boolean }> => {
-  const stored = await RedisService.client.get(`otp:${payload.email}`);
+  const stored = await redisClient.get(`otp:${payload.email}`);
   if (!stored || stored !== payload.otp) {
     throw new ApiError('Invalid or expired OTP', StatusCodes.BAD_REQUEST);
   }
 
-  await RedisService.client.del(`otp:${payload.email}`);
+  await redisClient.del(`otp:${payload.email}`);
   await prisma.user.updateMany({
     where: { email: payload.email },
     data: { isVerified: true },
@@ -134,7 +79,7 @@ const forgotPassword = async (payload: IForgotPasswordPayload): Promise<{ messag
   }
 
   const token = crypto.randomBytes(32).toString('hex');
-  await RedisService.client.set(`reset:${token}`, user.id, 'EX', 10 * 60);
+  await redisClient.set(`reset:${token}`, user.id, 10 * 60);
 
   const resetUrl = `${config.base_url || ''}/reset-password?token=${token}`;
   await sendEmailHelper.sendEmail(
@@ -147,7 +92,7 @@ const forgotPassword = async (payload: IForgotPasswordPayload): Promise<{ messag
 };
 
 const resetPassword = async (payload: IResetPasswordPayload): Promise<{ message: string }> => {
-  const userId = await RedisService.client.get(`reset:${payload.token}`);
+  const userId = await redisClient.get(`reset:${payload.token}`);
   if (!userId) {
     throw new ApiError('Invalid or expired reset token', StatusCodes.BAD_REQUEST);
   }
@@ -158,7 +103,7 @@ const resetPassword = async (payload: IResetPasswordPayload): Promise<{ message:
     data: { passwordHash, tokenVersion: { increment: 1 } },
   });
 
-  await RedisService.client.del(`reset:${payload.token}`);
+  await redisClient.del(`reset:${payload.token}`);
   return { message: 'Password reset successful' };
 };
 
@@ -178,7 +123,7 @@ const logout = async (refreshTokenValue: string): Promise<ILogoutResponse> => {
 };
 
 export const AuthService = {
-  register,
+
   login,
   refreshToken,
   verifyOtp,

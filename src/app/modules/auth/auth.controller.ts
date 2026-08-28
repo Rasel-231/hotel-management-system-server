@@ -5,16 +5,7 @@ import { catchAsync } from '../../../shared/catchAsync';
 import { sendResponse } from '../../../shared/sendResponse';
 import { setCookies, clearSetCookies } from '../../../shared/cookies';
 
-const register = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthService.register(req.body);
-  setCookies(res, result);
-  sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
-    success: true,
-    message: 'User registered successfully. Verify your email with the OTP sent.',
-    data: { user: result.user },
-  });
-});
+
 
 const login = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.login(req.body);
@@ -90,7 +81,6 @@ const logout = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const AuthController = {
-  register,
   login,
   refreshToken,
   verifyOtp,

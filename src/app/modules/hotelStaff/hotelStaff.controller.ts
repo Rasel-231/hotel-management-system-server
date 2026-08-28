@@ -55,4 +55,34 @@ const remove = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const HotelStaffController = { getAll, getById, create, update, remove };
+const invite = catchAsync(async (req: Request, res: Response) => {
+  const result = await HotelStaffService.invite(req.params.hotelId, req.user!.userId, req.body);
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: 'Staff invited successfully',
+    data: result,
+  });
+});
+
+const listByHotel = catchAsync(async (req: Request, res: Response) => {
+  const result = await HotelStaffService.listByHotel(req.params.hotelId, req.user!.userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Hotel staff retrieved successfully',
+    data: result,
+  });
+});
+
+const revoke = catchAsync(async (req: Request, res: Response) => {
+  const result = await HotelStaffService.revoke(req.params.staffId, req.user!.userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Staff access revoked',
+    data: result,
+  });
+});
+
+export const HotelStaffController = { getAll, getById, create, update, remove, invite, listByHotel, revoke };
