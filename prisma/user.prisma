@@ -1,0 +1,22 @@
+model User {
+  id             String         @id @default(uuid())
+  name           String
+  email          String         @unique
+  passwordHash   String
+  role           Role           @default(USER)
+  phone          String?
+  isVerified     Boolean        @default(false)
+  tokenVersion   Int            @default(0)
+  hotels         Hotel[]
+  bookings       Booking[]
+  reviews        Review[]
+  notifications  Notification[]
+  hotelStaffs    HotelStaff[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([role])
+  @@index([isVerified])
+  @@index([phone])
+  @@map("users")
+}

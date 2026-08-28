@@ -1,0 +1,18 @@
+model HotelStaff {
+  id         String    @id @default(uuid())
+  hotelId    String
+  hotel      Hotel     @relation(fields: [hotelId], references: [id])
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  subRole    SubRole
+  permissions String[]
+  roomHousekeepings RoomHousekeeping[]
+  checkLogs BookingCheckLog[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([hotelId, userId])
+  @@index([hotelId])
+  @@index([userId])
+  @@map("hotel_staff")
+}

@@ -1,0 +1,13 @@
+model RoomHousekeeping {
+  id              String             @id @default(uuid())
+  roomId          String             @unique
+  room            Room               @relation(fields: [roomId], references: [id])
+  status          HousekeepingStatus @default(DIRTY)
+  assignedStaffId String?
+  assignedStaff   HotelStaff?        @relation(fields: [assignedStaffId], references: [id])
+  updatedAt       DateTime           @updatedAt
+
+  @@index([status])
+  @@index([assignedStaffId])
+  @@map("room_housekeeping")
+}

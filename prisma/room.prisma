@@ -1,0 +1,22 @@
+model Room {
+  id           String             @id @default(uuid())
+  hotelId      String
+  hotel        Hotel              @relation(fields: [hotelId], references: [id])
+  type         String
+  price        Float
+  capacity     Int
+  amenities    String[]
+  images       String[]
+  availabilities RoomAvailability[]
+  bookings     Booking[]
+  pricingRules PricingRule[]
+  housekeeping RoomHousekeeping[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([hotelId])
+  @@index([hotelId, type])
+  @@index([price])
+  @@index([capacity])
+  @@map("rooms")
+}

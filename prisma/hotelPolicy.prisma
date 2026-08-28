@@ -1,0 +1,14 @@
+model HotelPolicy {
+  id               String   @id @default(uuid())
+  hotelId          String   @unique
+  hotel            Hotel    @relation(fields: [hotelId], references: [id])
+  checkInTime      String?
+  checkOutTime     String?
+  cancellationPolicy String?
+  petPolicy        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([hotelId])
+  @@map("hotel_policies")
+}

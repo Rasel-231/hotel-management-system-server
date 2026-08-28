@@ -1,0 +1,24 @@
+model Booking {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  roomId    String
+  room      Room      @relation(fields: [roomId], references: [id])
+  checkIn   DateTime
+  checkOut  DateTime
+  status    String    @default("PENDING")
+  totalPrice Float
+  payment   Payment?
+  review    Review?
+  bookingCheckLogs BookingCheckLog[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([roomId])
+  @@index([userId, status])
+  @@index([status])
+  @@index([checkIn])
+  @@index([checkOut])
+  @@map("bookings")
+}

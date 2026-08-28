@@ -1,0 +1,12 @@
+model RoomAvailability {
+  id       String @id @default(uuid())
+  roomId   String
+  room     Room   @relation(fields: [roomId], references: [id])
+  date     DateTime
+  isBooked Boolean @default(false)
+  price    Float?
+  @@unique([roomId, date])
+  @@index([date])
+  @@index([isBooked])
+  @@map("room_availabilities")
+}

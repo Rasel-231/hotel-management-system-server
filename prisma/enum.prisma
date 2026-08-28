@@ -1,0 +1,26 @@
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  OWNER
+  USER
+  GUEST
+}
+
+enum SubRole {
+  MANAGER
+  FRONT_DESK
+  HOUSEKEEPING
+}
+
+enum HousekeepingStatus {
+  CLEAN
+  DIRTY
+  IN_PROGRESS
+  OOS
+}
+
+enum PricingType {
+  SEASONAL
+  WEEKEND
+  LENGTH_OF_STAY
+}

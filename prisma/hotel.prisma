@@ -1,0 +1,25 @@
+model Hotel {
+  id          String   @id @default(uuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  slug        String   @unique
+  name        String
+  description String?
+  location    String?
+  latitude    Float?
+  longitude   Float?
+  status      String   @default("ACTIVE")
+  rooms       Room[]
+  reviews     Review[]
+  policies    HotelPolicy[]
+  pricingRules PricingRule[]
+  staff       HotelStaff[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([status, location])
+  @@index([latitude, longitude])
+  @@map("hotels")
+}
