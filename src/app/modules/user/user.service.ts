@@ -6,9 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../../shared/api.error';
 import { buildWhere } from '../../../shared/pagination.helper';
 import { IUserCreateInput, IUserUpdateInput, IUserAdminUpdateInput } from './user.interface';
-import { generateOtp, generateTokens, toUserResponse } from '../../../utils/generateToken';
-import { redisClient } from '../../../database/redis';
-import { sendEmailHelper } from '../../../shared/email.helper';
+import { generateTokens, toUserResponse } from '../../../utils/generateToken';
 import { IAuthResult } from '../auth/auth.interface';
 
 const userSelect = {
@@ -23,36 +21,31 @@ const userSelect = {
 } as const;
 
 
-
-
-
 const registerUser = async (payload: IUserCreateInput): Promise<IAuthResult> => {
   const email = payload.email.trim().toLowerCase();
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    throw new ApiError('This Email is already registered', StatusCodes.CONFLICT);
-  }
   const passwordHash = await bcrypt.hash(payload.password, config.salt_rounds);
-  const user = await prisma.user.create({
-    data: {
-      name: payload.name.trim(),
-      email,
-      passwordHash,
-      role: 'USER',
-      phone: payload.phone,
-      address: payload.address,
-    },
-  });
 
-  const otp = generateOtp();
-  await redisClient.set(`otp:${user.email}`, otp, 5 * 60);
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: {
+        name: payload.name.trim(),
+        email,
+        passwordHash,
+        role: 'USER',
+        phone: payload.phone,
+        address: payload.address,
+      },
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      throw new ApiError('This Email is already registered', StatusCodes.CONFLICT);
+    }
+    throw err;
+  }
+
   const tokens = await generateTokens({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion });
 
-  await sendEmailHelper.sendEmail(
-    user.email,
-    'Verify your account',
-    `<p>Your verification OTP is <b>${otp}</b>. It expires in 5 minutes.</p>`
-  );
   return { ...tokens, user: toUserResponse(user) };
 };
 
@@ -61,8 +54,28 @@ const getProfile = async (userId: string) => {
 };
 
 const updateProfile = async (userId: string, payload: IUserUpdateInput) => {
-  await prisma.user.findUniqueOrThrow({ where: { id: userId } });
-  return prisma.user.update({ where: { id: userId }, data: payload, select: userSelect });
+  const { name, phone, address } = payload as {
+    name?: string;
+    phone?: string;
+    address?: string;
+  };
+
+  try {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(name !== undefined && { name: name.trim() }),
+        ...(phone !== undefined && { phone }),
+        ...(address !== undefined && { address }),
+      },
+      select: userSelect,
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+      throw new ApiError('User not found', StatusCodes.NOT_FOUND);
+    }
+    throw err;
+  }
 };
 
 const getAllUsers = async (query: Record<string, unknown>) => {
@@ -95,13 +108,25 @@ const getById = async (id: string) => {
 };
 
 const updateUser = async (id: string, payload: IUserAdminUpdateInput) => {
-  await prisma.user.findUniqueOrThrow({ where: { id } });
-  return prisma.user.update({ where: { id }, data: payload, select: userSelect });
+  try {
+    return await prisma.user.update({ where: { id }, data: payload, select: userSelect });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+      throw new ApiError('User not found', StatusCodes.NOT_FOUND);
+    }
+    throw err;
+  }
 };
 
 const deleteUser = async (id: string) => {
-  await prisma.user.findUniqueOrThrow({ where: { id } });
-  return prisma.user.delete({ where: { id } });
+  try {
+    return await prisma.user.delete({ where: { id } });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+      throw new ApiError('User not found', StatusCodes.NOT_FOUND);
+    }
+    throw err;
+  }
 };
 
 export const UserService = {
