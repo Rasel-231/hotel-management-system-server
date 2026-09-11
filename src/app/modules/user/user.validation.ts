@@ -29,10 +29,7 @@ const userRegisterZodValidation = z
         phone: phoneSchema,
         address: z.string().trim().max(500, 'Address is too long').optional(),
       })
-      .refine((data) => !data.password.toLowerCase().includes(data.email.split('@')[0]?.toLowerCase() || ''), {
-        message: 'Password must not contain part of your email',
-        path: ['password'],
-      }),
+
   });
 
 const getAll = z.object({

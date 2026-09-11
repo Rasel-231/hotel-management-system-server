@@ -6,6 +6,33 @@ enum Role {
   GUEST
 }
 
+enum BookedFor {
+  SELF
+  GUEST
+}
+
+enum IdType {
+  NID
+  PASSPORT
+  BIRTH_CERTIFICATE
+  DRIVING_LICENSE
+}
+
+enum VisitPurpose {
+  BUSINESS
+  LEISURE
+  MEDICAL
+  OFFICIAL
+  OTHER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
 enum HotelStatus {
   DRAFT
   PENDING

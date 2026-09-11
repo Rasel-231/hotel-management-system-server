@@ -10,31 +10,29 @@ import ApiError from '../../../shared/api.error';
 import {
   IAuthResult,
   ILoginPayload,
-  IRegisterPayload,
   IResetPasswordPayload,
   IVerifyOtpPayload,
   IForgotPasswordPayload,
   ILogoutResponse,
 } from './auth.interface';
 
-import { UserService } from '../user/user.service';
-import { generateOtp, generateTokens, toUserResponse } from '../../../utils/generateToken';
+import { generateTokens, toUserResponse } from '../../../utils/generateToken';
 import { redisClient } from '../../../database/redis';
-
-
 
 const login = async (payload: ILoginPayload): Promise<IAuthResult> => {
   const user = await prisma.user.findUnique({ where: { email: payload.email } });
+
   if (!user) {
-    throw new ApiError('Invalid E-mail', StatusCodes.UNAUTHORIZED);
+    throw new ApiError('Invalid email or password', StatusCodes.UNAUTHORIZED);
   }
 
   const isPasswordMatch = await bcrypt.compare(payload.password, user.passwordHash);
   if (!isPasswordMatch) {
-    throw new ApiError('Invalid password', StatusCodes.UNAUTHORIZED);
+    throw new ApiError('Invalid email or password', StatusCodes.UNAUTHORIZED);
   }
 
   const tokens = await generateTokens({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion });
+
   return { ...tokens, user: toUserResponse(user) };
 };
 
@@ -74,21 +72,19 @@ const verifyOtp = async (payload: IVerifyOtpPayload): Promise<{ verified: boolea
 
 const forgotPassword = async (payload: IForgotPasswordPayload): Promise<{ message: string }> => {
   const user = await prisma.user.findUnique({ where: { email: payload.email } });
-  if (!user) {
-    throw new ApiError('User not found', StatusCodes.NOT_FOUND);
+  if (user) {
+    const token = crypto.randomBytes(32).toString('hex');
+    await redisClient.set(`reset:${token}`, user.id, 10 * 60);
+
+    const resetUrl = `${config.base_url || ''}/reset-password?token=${token}`;
+    await sendEmailHelper.sendEmail(
+      user.email,
+      'Reset your password',
+      `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 10 minutes.</p>`
+    );
   }
 
-  const token = crypto.randomBytes(32).toString('hex');
-  await redisClient.set(`reset:${token}`, user.id, 10 * 60);
-
-  const resetUrl = `${config.base_url || ''}/reset-password?token=${token}`;
-  await sendEmailHelper.sendEmail(
-    user.email,
-    'Reset your password',
-    `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 10 minutes.</p>`
-  );
-
-  return { message: 'Reset link sent to your email' };
+  return { message: 'If an account with that email exists, a reset link has been sent' };
 };
 
 const resetPassword = async (payload: IResetPasswordPayload): Promise<{ message: string }> => {
@@ -116,14 +112,13 @@ const logout = async (refreshTokenValue: string): Promise<ILogoutResponse> => {
         data: { tokenVersion: { increment: 1 } },
       });
     } catch {
-      // invalid/expired token -> nothing to revoke, logout still succeeds
+
     }
   }
   return { message: 'Logged out successfully' };
 };
 
 export const AuthService = {
-
   login,
   refreshToken,
   verifyOtp,

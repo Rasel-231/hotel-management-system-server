@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 12
+    },
+    "auditLog": "F:\\MyProgramming\\hotel-management-system\\server\\logs\\success\\.c5d23b87e1ff62fb7644ad5143b4433b3918519b-audit.json",
+    "files": [
+        {
+            "date": 1789102752334,
+            "name": "F:\\MyProgramming\\hotel-management-system\\server\\logs\\success\\2026-09-11-success.log",
+            "hash": "aae26a4a12b1c9cbe2af003f3c8ff59c08a9bfaf7aeed997fc779ee8edc065fe"
+        },
+        {
+            "date": 1789151124424,
+            "name": "F:\\MyProgramming\\hotel-management-system\\server\\logs\\success\\2026-09-12-success.log",
+            "hash": "c1eba6846afb105dfd387af3e9df371fb14055f2be470eb78a29bed389ee20e0"
+        }
+    ],
+    "hashType": "sha256"
+}

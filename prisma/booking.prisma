@@ -1,25 +1,46 @@
 model Booking {
-  id        String    @id @default(uuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  roomId    String
-  room      Room      @relation(fields: [roomId], references: [id])
-  checkIn   DateTime
-  checkOut  DateTime
-  status    String    @default("PENDING")
-  source    String?   @default("ONLINE")
-  guests    Int?
-  noShow    Boolean   @default(false)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id])
+
+  hotelId String
+  hotel   Hotel  @relation(fields: [hotelId], references: [id]) // 🆕
+
+  checkIn       DateTime
+  checkOut      DateTime
+  status        String   @default("PENDING")
+  source        String?  @default("ONLINE")
+  guests        Int?
+  adults        Int      @default(1)
+  children      Int      @default(0)
+  roomsCount    Int      @default(1)
+  bookedFor     String   @default("SELF")
+  guestName     String?
+  guestEmail    String?
+  guestPhone    String?
+  guestIdType   String?
+  guestIdNumber String?
+  guestAddress  String?
+  guestPurpose  String?
+
+  specialRequests String?
+
+  noShow      Boolean   @default(false)
   cancelledAt DateTime?
-  totalPrice Float
-  payment   Payment?
-  review    Review?
+  totalPrice  Float
+
+  payment          Payment?
+  review           Review?
   bookingCheckLogs BookingCheckLog[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([roomId])
+  @@index([hotelId])
   @@index([userId, status])
   @@index([status])
   @@index([checkIn])

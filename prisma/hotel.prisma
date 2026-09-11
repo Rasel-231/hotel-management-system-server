@@ -13,6 +13,7 @@ model Hotel {
   status      HotelStatus @default(DRAFT)
   rooms       Room[]
   reviews     Review[]
+  bookings  Booking[]
   policies    HotelPolicy[]
   pricingRules PricingRule[]
   staff       HotelStaff[]
