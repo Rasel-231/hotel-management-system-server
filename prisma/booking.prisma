@@ -6,29 +6,30 @@ model Booking {
   room   Room   @relation(fields: [roomId], references: [id])
 
   hotelId String
-  hotel   Hotel  @relation(fields: [hotelId], references: [id]) // 🆕
+  hotel   Hotel  @relation(fields: [hotelId], references: [id])
 
   checkIn       DateTime
   checkOut      DateTime
-  status        String   @default("PENDING")
-  source        String?  @default("ONLINE")
+  status        BookingStatus @default(PENDING)
+  source        String?       @default("ONLINE")
   guests        Int?
-  adults        Int      @default(1)
-  children      Int      @default(0)
-  roomsCount    Int      @default(1)
-  bookedFor     String   @default("SELF")
+  adults        Int           @default(1)
+  children      Int           @default(0)
+  roomsCount    Int           @default(1)
+  bookedFor     BookedFor     @default(SELF) // 🔧 String → enum
   guestName     String?
   guestEmail    String?
   guestPhone    String?
-  guestIdType   String?
+  guestIdType   IdType? // 🔧 optional: also enum-ify since IdType enum exists
   guestIdNumber String?
   guestAddress  String?
-  guestPurpose  String?
+  guestPurpose  VisitPurpose? // 🔧 optional: VisitPurpose enum exists too
 
   specialRequests String?
 
   noShow      Boolean   @default(false)
   cancelledAt DateTime?
+  expiresAt   DateTime?
   totalPrice  Float
 
   payment          Payment?
@@ -43,6 +44,7 @@ model Booking {
   @@index([hotelId])
   @@index([userId, status])
   @@index([status])
+  @@index([status, expiresAt])
   @@index([checkIn])
   @@index([checkOut])
   @@map("bookings")

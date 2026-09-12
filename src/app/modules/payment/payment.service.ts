@@ -1,8 +1,10 @@
 import prisma from '../../../shared/prisma.client';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../../shared/api.error';
+import { BookingStatus } from '@prisma/client';
 import { getGateway } from './gateways';
-import { emailQueue, pdfQueue } from '../../../shared/queue.manager';
+import { emailQueue, pdfQueue, refundQueue } from '../../../shared/queue.manager';
+import { cancelBookingExpiry } from '../../../shared/booking.expiry';
 import { emitToHotel, SOCKET_EVENTS } from '../../../shared/socket.server';
 import { notify } from '../../../shared/notification.helper';
 import { releaseBookingLocks, datesBetween } from '../../../shared/booking.lock';
@@ -19,8 +21,11 @@ const initiate = async (
   });
   if (!booking) throw new ApiError('Booking not found', StatusCodes.NOT_FOUND);
   if (booking.userId !== userId) throw new ApiError('Forbidden', StatusCodes.FORBIDDEN);
-  if (booking.status !== 'PENDING') {
+  if (booking.status !== BookingStatus.PENDING) {
     throw new ApiError('Booking is not payable', StatusCodes.BAD_REQUEST);
+  }
+  if (booking.expiresAt && new Date(booking.expiresAt).getTime() < Date.now()) {
+    throw new ApiError('Booking hold has expired. Please create a new booking.', StatusCodes.BAD_REQUEST);
   }
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -42,14 +47,11 @@ const initiate = async (
   return result;
 };
 
-const confirmBookingPayment = async (payment: any) => {
-  await prisma.$transaction([
-    prisma.payment.update({ where: { id: payment.id }, data: { status: 'PAID' } }),
-    prisma.booking.update({ where: { id: payment.bookingId }, data: { status: 'CONFIRMED' } }),
-  ]);
-
-  const booking = payment.booking;
-  await releaseBookingLocks(booking.roomId, datesBetween(new Date(booking.checkIn), new Date(booking.checkOut)));
+const finalizeConfirmedBooking = async (booking: any) => {
+  await releaseBookingLocks(
+    booking.roomId,
+    datesBetween(new Date(booking.checkIn), new Date(booking.checkOut))
+  );
 
   const user = await prisma.user.findUnique({ where: { id: booking.userId } });
   if (user?.email) {
@@ -62,6 +64,39 @@ const confirmBookingPayment = async (payment: any) => {
   await pdfQueue.add('invoice', { bookingId: booking.id, userId: booking.userId });
   emitToHotel(booking.room.hotelId, SOCKET_EVENTS.NEW_BOOKING, { bookingId: booking.id });
   await notify(booking.userId, 'BOOKING_CONFIRMED', { bookingId: booking.id });
+};
+
+const confirmBookingPayment = async (payment: any) => {
+  const [updatedPayment, updatedBooking] = await prisma.$transaction([
+    prisma.payment.update({ where: { id: payment.id }, data: { status: 'PAID' } }),
+    prisma.booking.updateMany({
+      where: { id: payment.bookingId, status: BookingStatus.PENDING },
+      data: { status: BookingStatus.CONFIRMED, expiresAt: null },
+    }),
+  ]);
+
+  const booking = payment.booking;
+
+  if (updatedBooking.count === 0) {
+    if (booking.status !== BookingStatus.CONFIRMED) {
+      // Booking expired or was cancelled before the payment landed -> auto refund.
+      await refundQueue.add('refund', { paymentId: payment.id });
+      await notify(booking.userId, 'PAYMENT_REFUNDED', {
+        bookingId: booking.id,
+        reason: 'BOOKING_NOT_PAYABLE',
+      });
+      return;
+    }
+    // Duplicate/late confirmation for an already-confirmed booking.
+    await releaseBookingLocks(
+      booking.roomId,
+      datesBetween(new Date(booking.checkIn), new Date(booking.checkOut))
+    );
+    return;
+  }
+
+  await cancelBookingExpiry(payment.bookingId);
+  await finalizeConfirmedBooking(booking);
 };
 
 const handleWebhook = async (

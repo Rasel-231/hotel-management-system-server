@@ -16,7 +16,7 @@ async function serverFuntion() {
       logger.info(`Server running on port ${config.port}`)
     })
     initSocket(server)
-    startWorkers()
+    await startWorkers()
     logger.info('Socket.IO and workers initialized')
   } catch (error) {
     logger.error('Failed to start server:', error)
