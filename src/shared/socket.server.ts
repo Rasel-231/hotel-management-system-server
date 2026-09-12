@@ -25,6 +25,8 @@ export const emitToUser = (userId: string, event: string, payload: unknown): voi
 
 export const SOCKET_EVENTS = {
   NEW_BOOKING: 'new_booking',
+  BOOKING_PENDING: 'booking_pending',
+  BOOKING_RELEASED: 'booking_released',
   BOOKING_CANCELLED: 'booking_cancelled',
   LOW_AVAILABILITY: 'low_availability',
   AI_TOKEN: 'ai_token',

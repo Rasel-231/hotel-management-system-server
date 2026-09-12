@@ -2,5 +2,9 @@ export const bookingCreateFields = [
   'roomId',
   'checkIn',
   'checkOut',
-  'totalPrice',
+  'guests',
+  'adults',
+  'children',
+  'roomsCount',
+  'specialRequests',
 ] as const;

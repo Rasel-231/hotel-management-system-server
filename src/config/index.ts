@@ -48,6 +48,9 @@ type Config = {
     provider: string;
     api_key: string;
   };
+  booking: {
+    hold_minutes: number;
+  };
   redis_url: string;
 };
 
@@ -86,6 +89,9 @@ const config: Config = {
   maps: {
     provider: getEnv('MAPS_PROVIDER', 'mapbox'),
     api_key: getEnv('MAPS_API_KEY', ''),
+  },
+  booking: {
+    hold_minutes: Number(process.env.BOOKING_HOLD_MINUTES) || 15,
   },
   redis_url: getEnv('REDIS_URL', 'redis://localhost:6379'),
 };

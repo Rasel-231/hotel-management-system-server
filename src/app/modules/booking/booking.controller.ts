@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { Prisma } from '@prisma/client';
-import { BookingService } from './booking.service';
+import { BookingService, TCreateBookingPayload } from './booking.service';
 import { bookingCreateFields } from './booking.constant';
 import { catchAsync } from '../../../shared/async.handler';
 import { sendResponse } from '../../../shared/response.helper';
@@ -10,7 +9,7 @@ import { pick } from '../../../shared/object.util';
 const createBooking = catchAsync(async (req: Request, res: Response) => {
   const data = pick(req.body as Record<string, unknown>, bookingCreateFields);
   const result = await BookingService.createBooking(
-    data as Prisma.BookingUncheckedCreateInput,
+    data as unknown as TCreateBookingPayload,
     req.user!.userId
   );
   sendResponse(res, {
@@ -88,7 +87,6 @@ const checkOutBooking = catchAsync(async (req: Request, res: Response) => {
 const walkInCreate = catchAsync(async (req: Request, res: Response) => {
   const result = await BookingService.walkInCreate({
     ...req.body,
-    staffId: req.staffId ?? req.user!.userId,
     userId: req.user!.userId,
   });
   sendResponse(res, {
