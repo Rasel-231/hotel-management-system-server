@@ -1,7 +1,19 @@
 import nodemailer from 'nodemailer';
 import config from '../config';
 
-const sendEmail = async (to: string, subject: string, html: string): Promise<void> => {
+
+interface EmailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+}
+
+const sendEmail = async (
+  to: string,
+  subject: string,
+  html: string,
+  attachments?: EmailAttachment[]
+): Promise<void> => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -15,6 +27,7 @@ const sendEmail = async (to: string, subject: string, html: string): Promise<voi
     to,
     subject,
     html,
+    attachments,
   });
 };
 
